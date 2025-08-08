@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#111111" />
+  <title>Calculator</title>
+  <link rel="manifest" href="pwa/manifest.webmanifest">
+  <link rel="icon" href="pwa/icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="pwa/icons/icon-192.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" aria-label="App name">Calculator</div>
+
+    <div class="controls-left">
+      <label class="visually-hidden" for="mode-select">Mode</label>
+      <select id="mode-select" aria-label="Calculator mode">
+        <option value="basic">Basic</option>
+        <option value="scientific">Scientific</option>
+        <option value="programmer">Programmer</option>
+      </select>
+
+      <label class="visually-hidden" for="angle-select">Angle unit</label>
+      <select id="angle-select" aria-label="Angle unit">
+        <option value="DEG">DEG</option>
+        <option value="RAD">RAD</option>
+      </select>
+
+      <div id="programmer-controls" class="prog-controls" hidden>
+        <label class="visually-hidden" for="base-select">Base</label>
+        <select id="base-select" aria-label="Number base">
+          <option value="HEX">HEX</option>
+          <option value="DEC">DEC</option>
+          <option value="OCT">OCT</option>
+          <option value="BIN">BIN</option>
+        </select>
+        <label class="visually-hidden" for="wordsize-select">Word size</label>
+        <select id="wordsize-select" aria-label="Word size">
+          <option value="8">8-bit</option>
+          <option value="16">16-bit</option>
+          <option value="32" selected>32-bit</option>
+          <option value="64">64-bit</option>
+        </select>
+        <label class="switch" aria-label="Signed values">
+          <input type="checkbox" id="signed-toggle" />
+          <span>Signed</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="controls-right">
+      <label class="visually-hidden" for="theme-select">Theme</label>
+      <select id="theme-select" aria-label="Theme">
+        <option value="system">System</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="amoled">AMOLED</option>
+      </select>
+      <button id="history-toggle" aria-expanded="false" aria-controls="history-panel" title="Toggle history (H)">History</button>
+      <button id="install-btn" hidden>Install</button>
+      <div id="memory-indicator" aria-live="polite" aria-atomic="true" class="mem-indicator" title="Memory">
+        M
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="display" aria-live="polite" aria-atomic="true">
+      <div id="expression" class="expression" aria-label="Expression" role="status"></div>
+      <div id="result" class="result" aria-label="Result" role="status">0</div>
+    </section>
+
+    <aside id="history-panel" class="history" hidden aria-label="History panel">
+      <div class="history-header">
+        <h2>History</h2>
+        <button id="history-clear" title="Clear history">Clear</button>
+      </div>
+      <ul id="history-list" class="history-list" role="list"></ul>
+    </aside>
+
+    <section id="keypads" class="keypads" aria-label="Keypads">
+      <!-- Basic keypad -->
+      <div id="basic-pad" class="keypad grid">
+        <button data-act="ac" class="key action">AC</button>
+        <button data-act="ce" class="key action">CE</button>
+        <button data-act="percent" class="key action">%</button>
+        <button data-act="backspace" class="key action">⌫</button>
+
+        <button data-val="7" class="key">7</button>
+        <button data-val="8" class="key">8</button>
+        <button data-val="9" class="key">9</button>
+        <button data-op="divide" class="key op">÷</button>
+
+        <button data-val="4" class="key">4</button>
+        <button data-val="5" class="key">5</button>
+        <button data-val="6" class="key">6</button>
+        <button data-op="multiply" class="key op">×</button>
+
+        <button data-val="1" class="key">1</button>
+        <button data-val="2" class="key">2</button>
+        <button data-val="3" class="key">3</button>
+        <button data-op="minus" class="key op">−</button>
+
+        <button data-act="sign" class="key">±</button>
+        <button data-val="0" class="key">0</button>
+        <button data-act="decimal" class="key">.</button>
+        <button data-op="plus" class="key op">+</button>
+
+        <button data-act="open-paren" class="key">(</button>
+        <button data-act="close-paren" class="key">)</button>
+        <button data-act="equals" class="key equal">=</button>
+      </div>
+
+      <!-- Scientific keypad -->
+      <div id="scientific-pad" class="keypad grid" hidden>
+        <button data-fn="sin" class="key">sin</button>
+        <button data-fn="cos" class="key">cos</button>
+        <button data-fn="tan" class="key">tan</button>
+        <button data-fn="asin" class="key">asin</button>
+        <button data-fn="acos" class="key">acos</button>
+        <button data-fn="atan" class="key">atan</button>
+
+        <button data-fn="sinh" class="key">sinh</button>
+        <button data-fn="cosh" class="key">cosh</button>
+        <button data-fn="tanh" class="key">tanh</button>
+        <button data-fn="ln" class="key">ln</button>
+        <button data-fn="log10" class="key">log10</button>
+        <button data-fn="exp" class="key">exp</button>
+
+        <button data-const="pi" class="key">π</button>
+        <button data-const="e" class="key">e</button>
+        <button data-fn="tenpow" class="key">10^x</button>
+        <button data-fn="epow" class="key">e^x</button>
+        <button data-op="pow" class="key">x^y</button>
+        <button data-fn="square" class="key">x²</button>
+
+        <button data-fn="cube" class="key">x³</button>
+        <button data-fn="sqrt" class="key">√</button>
+        <button data-fn="cbrt" class="key">∛</button>
+        <button data-fn="inv" class="key">1/x</button>
+        <button data-fn="abs" class="key">|x|</button>
+        <button data-fn="factorial" class="key">n!</button>
+
+        <button data-fn="floor" class="key">floor</button>
+        <button data-fn="ceil" class="key">ceil</button>
+      </div>
+
+      <!-- Programmer keypad -->
+      <div id="programmer-pad" class="keypad grid" hidden>
+        <div class="row">
+          <button data-prog="and" class="key">AND</button>
+          <button data-prog="or" class="key">OR</button>
+          <button data-prog="xor" class="key">XOR</button>
+          <button data-prog="not" class="key">NOT</button>
+          <button data-prog="shl" class="key">SHL</button>
+          <button data-prog="shr" class="key">SHR</button>
+        </div>
+        <div class="row base-keys">
+          <button data-val="A" class="key">A</button>
+          <button data-val="B" class="key">B</button>
+          <button data-val="C" class="key">C</button>
+          <button data-val="D" class="key">D</button>
+          <button data-val="E" class="key">E</button>
+          <button data-val="F" class="key">F</button>
+        </div>
+      </div>
+
+      <!-- Memory row -->
+      <div id="memory-pad" class="keypad memory-row">
+        <button data-mem="mc" class="key">MC</button>
+        <button data-mem="mr" class="key">MR</button>
+        <button data-mem="mplus" class="key">M+</button>
+        <button data-mem="mminus" class="key">M−</button>
+        <button data-mem="ms" class="key">MS</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true" class="toast" hidden></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
